@@ -1,7 +1,6 @@
 from smolagents.tools import Tool
 from diffusers import StableDiffusionPipeline
 import torch
-from huggingface_hub import cached_download
 from PIL import Image
 import uuid
 import os
