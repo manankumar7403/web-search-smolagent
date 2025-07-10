@@ -1,5 +1,5 @@
 diffusers==0.27.2
-huggingface_hub>=0.28.0
+huggingface_hub==0.25.0
 torch
 transformers
 pillow
