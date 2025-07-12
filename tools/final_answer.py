@@ -7,7 +7,7 @@ class FinalAnswerTool(Tool):
     description = "Provides a final answer to the given problem in a human-readable, conversational format."
     inputs = {
         'answer': {'type': 'any', 'description': 'The final answer to the problem'},
-        'task': {'type': 'string', 'description': 'The original task for context (optional)', 'default': ''}
+        'task': {'type': 'string', 'description': 'The original task for context (optional)', 'default': '', 'nullable': True}
     }
     output_type = "string"
 
@@ -22,7 +22,7 @@ class FinalAnswerTool(Tool):
         task_lower = task.lower().strip()
 
         # Handle "age of" questions, e.g., "What is the age of Elon Musk?"
-        age_match = re.match(r".*age of\s+(.+?)(?:\?|$)", task_lower)
+        age_match = re.match(r".*age of\s+(.+?)(دهم?|$)", task_lower)
         if age_match and isinstance(answer, (int, float)):
             subject = age_match.group(1).strip()
             # Capitalize the subject for proper formatting
@@ -41,7 +41,7 @@ class FinalAnswerTool(Tool):
             subject = what_match.group(1).strip()
             return f"The {subject} is {str(answer)}."
 
-        # Handle "image" tasks (unchanged)
+        # Handle "image" tasks
         if "image" in task_lower and isinstance(answer, str):
             return f"Here is the result for '{task}': {answer}"
 
