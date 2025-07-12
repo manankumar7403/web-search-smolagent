@@ -4,9 +4,9 @@ torch
 transformers
 pillow
 markdownify
-smolagents>=0.2.0
+smolagents
 requests
-duckduckgo_search
+ddgs
 pandas
 pytz
 pyyaml

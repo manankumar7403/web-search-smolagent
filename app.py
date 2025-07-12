@@ -1,4 +1,4 @@
-from smolagents import CodeAgent, load_tool, tool
+from smolagents import CodeAgent, tool
 import datetime
 import pytz
 import yaml
@@ -9,7 +9,7 @@ from tools.web_search import DuckDuckGoSearchTool
 from tools.visit_webpage import VisitWebpageTool
 from Gradio_UI import GradioUI
 
-# Custom tool example (unchanged)
+# Custom tool example
 @tool
 def my_custom_tool(arg1: str, arg2: int) -> str:
     """A tool that does nothing yet
@@ -19,7 +19,7 @@ def my_custom_tool(arg1: str, arg2: int) -> str:
     """
     return "What magic will you build ?"
 
-# Timezone tool (unchanged)
+# Timezone tool
 @tool
 def get_current_time_in_timezone(timezone: str) -> str:
     """A tool that fetches the current local time in a specified timezone.
@@ -45,11 +45,11 @@ def create_model():
         from smolagents.models import TransformersModel
         from transformers import AutoTokenizer, AutoModelForCausalLM
 
-        model_id = 'HuggingFaceTB/SmolLM2-1.7B-Instruct'  # Smaller model suitable for Spaces
+        model_id = 'HuggingFaceTB/SmolLM2-1.7B-Instruct'
         tokenizer = AutoTokenizer.from_pretrained(model_id)
         hf_model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            torch_dtype=torch.float32,  # Use float32 for CPU compatibility
+            torch_dtype=torch.float32,
             device_map="auto" if torch.cuda.is_available() else None
         )
 
@@ -85,12 +85,12 @@ except FileNotFoundError:
 # Create agent with all tools
 if model is None:
     print("No model available, cannot proceed")
-    exit(1)  # Exit if model fails to load
+    exit(1)
 else:
     try:
         agent = CodeAgent(
             model=model,
-            tools=[final_answer, image_generator, web_search, visit_webpage],  # Include all tools
+            tools=[final_answer, image_generator, web_search, visit_webpage],
             max_steps=6,
             verbosity_level=1,
             grammar=None,
@@ -101,7 +101,6 @@ else:
         )
     except Exception as e:
         print(f"Error creating agent: {e}")
-        # Fallback with minimal configuration
         agent = CodeAgent(
             model=model,
             tools=[final_answer, image_generator, web_search, visit_webpage],
@@ -111,5 +110,5 @@ else:
         )
 
 # Launch Gradio UI with file upload support
-file_upload_folder = "./uploads"  # Ensure writable directory in Spaces
+file_upload_folder = "./uploads"
 GradioUI(agent, file_upload_folder=file_upload_folder).launch()
