@@ -1,10 +1,10 @@
 from typing import Any, Optional
 from smolagents.tools import Tool
-from ddgs import DDGS  # Updated import
+import duckduckgo_search
 
 class DuckDuckGoSearchTool(Tool):
     name = "web_search"
-    description = "Performs a DuckDuckGo web search based on your query (think a Google search) then returns the top search results."
+    description = "Performs a duckduckgo web search based on your query (think a Google search) then returns the top search results."
     inputs = {'query': {'type': 'string', 'description': 'The search query to perform.'}}
     output_type = "string"
 
@@ -12,10 +12,10 @@ class DuckDuckGoSearchTool(Tool):
         super().__init__()
         self.max_results = max_results
         try:
-            from ddgs import DDGS
+            from duckduckgo_search import DDGS
         except ImportError as e:
             raise ImportError(
-                "You must install package `ddgs` to run this tool: run `pip install ddgs`."
+                "You must install package `duckduckgo_search` to run this tool: for instance run `pip install duckduckgo-search`."
             ) from e
         self.ddgs = DDGS(**kwargs)
 
