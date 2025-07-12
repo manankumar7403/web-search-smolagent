@@ -13,52 +13,29 @@ class FreeImageGeneratorTool(Tool):
 
     def __init__(self, *args, **kwargs):
         try:
-            # Check if CUDA is available and supports float16
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            # Use CPU-only in free-tier Spaces
+            device = "cpu"
             model_id = "runwayml/stable-diffusion-v1-5"
 
-            if device == "cuda":
-                try:
-                    # Try with float16 for GPU
-                    self.pipe = StableDiffusionPipeline.from_pretrained(
-                        model_id,
-                        torch_dtype=torch.float16,
-                        safety_checker=None,
-                        requires_safety_checker=False
-                    ).to(device)
-                except Exception as e:
-                    print(f"Float16 failed, falling back to float32: {e}")
-                    self.pipe = StableDiffusionPipeline.from_pretrained(
-                        model_id,
-                        torch_dtype=torch.float32,
-                        safety_checker=None,
-                        requires_safety_checker=False
-                    ).to(device)
-            else:
-                # CPU inference with float32
-                self.pipe = StableDiffusionPipeline.from_pretrained(
-                    model_id,
-                    torch_dtype=torch.float32,
-                    safety_checker=None,
-                    requires_safety_checker=False
-                ).to(device)
+            # Load pipeline with float32 for CPU compatibility
+            self.pipe = StableDiffusionPipeline.from_pretrained(
+                model_id,
+                torch_dtype=torch.float32,
+                safety_checker=None,
+                requires_safety_checker=False,
+                low_cpu_mem_usage=True  # Optimize for low memory
+            ).to(device)
 
-            # Enable memory-efficient attention if available
+            # Enable memory-efficient attention
             if hasattr(self.pipe, 'enable_attention_slicing'):
                 self.pipe.enable_attention_slicing()
 
-            # Only enable CPU offloading if accelerate is available
-            try:
-                import accelerate
-                if hasattr(self.pipe, 'enable_model_cpu_offload'):
-                    print("Attempting to enable CPU offloading...")
-                    self.pipe.enable_model_cpu_offload()
-                else:
-                    print("CPU offloading not supported by this pipeline")
-            except ImportError:
-                print("Accelerate library not found, skipping CPU offloading")
-            except Exception as e:
-                print(f"Error enabling CPU offloading: {e}, proceeding without it")
+            # Enable sequential CPU offloading if available (no dependency on accelerate)
+            if hasattr(self.pipe, 'enable_sequential_cpu_offloading'):
+                print("Enabling sequential CPU offloading for memory efficiency")
+                self.pipe.enable_sequential_cpu_offloading()
+            else:
+                print("Sequential CPU offloading not supported, proceeding with standard CPU inference")
 
             self.is_initialized = True
             print(f"Image generator initialized on {device}")
@@ -73,12 +50,12 @@ class FreeImageGeneratorTool(Tool):
             return "Error: Image generator not properly initialized"
 
         try:
-            # Generate image with lower resolution for memory efficiency
+            # Generate image with lower resolution for CPU efficiency
             image = self.pipe(
                 prompt,
                 num_inference_steps=20,
-                height=512,
-                width=512,
+                height=256,  # Reduced for CPU
+                width=256,   # Reduced for CPU
                 guidance_scale=7.5
             ).images[0]
 

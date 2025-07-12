@@ -9,7 +9,7 @@ from tools.web_search import DuckDuckGoSearchTool
 from tools.visit_webpage import VisitWebpageTool
 from Gradio_UI import GradioUI
 
-# Custom tool example
+# Custom tool
 @tool
 def my_custom_tool(arg1: str, arg2: int) -> str:
     """A tool that does nothing yet
@@ -50,7 +50,7 @@ def create_model():
         hf_model = AutoModelForCausalLM.from_pretrained(
             model_id,
             torch_dtype=torch.float32,
-            device_map="auto" if torch.cuda.is_available() else None
+            device_map="cpu"  # Force CPU for free-tier Spaces
         )
 
         return TransformersModel(
