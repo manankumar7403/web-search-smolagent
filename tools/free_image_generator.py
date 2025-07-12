@@ -49,11 +49,16 @@ class FreeImageGeneratorTool(Tool):
 
             # Only enable CPU offloading if accelerate is available
             try:
-                from accelerate import Accelerator
+                import accelerate
                 if hasattr(self.pipe, 'enable_model_cpu_offload'):
+                    print("Attempting to enable CPU offloading...")
                     self.pipe.enable_model_cpu_offload()
+                else:
+                    print("CPU offloading not supported by this pipeline")
             except ImportError:
-                print("Accelerator not found, skipping CPU offloading")
+                print("Accelerate library not found, skipping CPU offloading")
+            except Exception as e:
+                print(f"Error enabling CPU offloading: {e}, proceeding without it")
 
             self.is_initialized = True
             print(f"Image generator initialized on {device}")
