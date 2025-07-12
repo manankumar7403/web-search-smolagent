@@ -83,3 +83,10 @@ class FreeImageGeneratorTool(Tool):
 
             # Save image
             filename = f"generated_{uuid.uuid4().hex[:8]}.png"
+            filepath = os.path.join(output_dir, filename)
+            image.save(filepath)
+
+            return filepath
+
+        except Exception as e:
+            return f"Error generating image: {str(e)}"
