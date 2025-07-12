@@ -13,29 +13,30 @@ class FreeImageGeneratorTool(Tool):
 
     def __init__(self, *args, **kwargs):
         try:
-            # Use CPU-only in free-tier Spaces
+            # Force CPU for free-tier Spaces
             device = "cpu"
             model_id = "runwayml/stable-diffusion-v1-5"
 
-            # Load pipeline with float32 for CPU compatibility
+            # Load pipeline with CPU optimizations
             self.pipe = StableDiffusionPipeline.from_pretrained(
                 model_id,
                 torch_dtype=torch.float32,
                 safety_checker=None,
                 requires_safety_checker=False,
-                low_cpu_mem_usage=True  # Optimize for low memory
+                low_cpu_mem_usage=True
             ).to(device)
 
             # Enable memory-efficient attention
             if hasattr(self.pipe, 'enable_attention_slicing'):
                 self.pipe.enable_attention_slicing()
+                print("Enabled attention slicing for memory efficiency")
 
-            # Enable sequential CPU offloading if available (no dependency on accelerate)
+            # Use sequential CPU offloading (built-in, no accelerate needed)
             if hasattr(self.pipe, 'enable_sequential_cpu_offloading'):
-                print("Enabling sequential CPU offloading for memory efficiency")
                 self.pipe.enable_sequential_cpu_offloading()
+                print("Enabled sequential CPU offloading for memory efficiency")
             else:
-                print("Sequential CPU offloading not supported, proceeding with standard CPU inference")
+                print("Sequential CPU offloading not supported, using standard CPU inference")
 
             self.is_initialized = True
             print(f"Image generator initialized on {device}")
@@ -50,12 +51,12 @@ class FreeImageGeneratorTool(Tool):
             return "Error: Image generator not properly initialized"
 
         try:
-            # Generate image with lower resolution for CPU efficiency
+            # Generate image with low resolution for CPU
             image = self.pipe(
                 prompt,
                 num_inference_steps=20,
-                height=256,  # Reduced for CPU
-                width=256,   # Reduced for CPU
+                height=256,
+                width=256,
                 guidance_scale=7.5
             ).images[0]
 

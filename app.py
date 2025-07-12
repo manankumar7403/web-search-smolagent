@@ -70,15 +70,21 @@ model = create_model()
 try:
     with open("prompts.yaml", 'r') as stream:
         prompt_templates = yaml.safe_load(stream)
-except FileNotFoundError:
-    print("prompts.yaml not found, using default prompts")
+        print("Loaded prompt_templates:", list(prompt_templates.keys()))  # Debug
+        # Verify required keys
+        required_keys = {'system_prompt', 'user_prompt', 'planning_prompt', 'tool_call_prompt', 'error_prompt', 'final_answer', 'managed_agent'}
+        missing_keys = required_keys - set(prompt_templates.keys())
+        if missing_keys:
+            raise ValueError(f"Missing required prompt templates: {missing_keys}")
+except Exception as e:
+    print(f"Error loading prompts.yaml: {e}, using default prompts")
     prompt_templates = {
-        'final_answer': "Provide the final answer to the user's question: {answer}",
         'system_prompt': "You are a helpful AI assistant that can answer questions and generate images.",
         'user_prompt': "User question: {input}",
         'planning_prompt': "Let me think about this step by step.",
         'tool_call_prompt': "I need to use a tool to help with this request.",
         'error_prompt': "I encountered an error: {error}. Let me try a different approach.",
+        'final_answer': "Provide the final answer to the user's question: {answer}",
         'managed_agent': "Delegate the task to a team member: {request}"
     }
 
@@ -110,5 +116,5 @@ else:
         )
 
 # Launch Gradio UI with file upload support
-file_upload_folder = "./uploads"
+file_upload_folder = "./Uploads"
 GradioUI(agent, file_upload_folder=file_upload_folder).launch()
