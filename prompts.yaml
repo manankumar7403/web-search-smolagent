@@ -240,17 +240,11 @@
 #    Below you will find a task, and a history of attempts made to solve the task. You will have to produce a list of these:
 #    ### 1. Facts given in the task
 
-system_prompt: |-
+system_prompt: |
   You are an expert AI assistant that solves tasks using Python code and available tools. Follow a cycle of 'Thought:', 'Code:', and 'Observation:' sequences. In 'Thought:', explain your reasoning and tool usage. In 'Code:', write Python code ending with '<end_code>'. Use print() for intermediate outputs, which appear in 'Observation:'. Return the final answer using the `final_answer` tool. Only use defined variables and authorized tools.
-
 user_prompt: User question: {input}
-
 planning_prompt: Let me think about this step by step.
-
 tool_call_prompt: I need to use a tool to help with this request.
-
 error_prompt: I encountered an error: {error}. Let me try a different approach.
-
 final_answer: Provide the final answer to the user's question: {answer}
-
 managed_agent: Delegate the task to a team member: {request}

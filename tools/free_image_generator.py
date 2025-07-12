@@ -5,22 +5,21 @@ from PIL import Image
 import uuid
 import os
 
-
 class FreeImageGeneratorTool(Tool):
     name = "image_generator"
     description = "Generates an image from a text prompt using Stable Diffusion"
-
     inputs = {'prompt': {'type': 'string', 'description': 'Text prompt for the image'}}
     output_type = "string"
 
-    # In free_image_generator.py, modify the __init__ method
-    # In free_image_generator.py, modify __init__
     def __init__(self, *args, **kwargs):
         try:
+            # Check if CUDA is available and supports float16
             device = "cuda" if torch.cuda.is_available() else "cpu"
             model_id = "runwayml/stable-diffusion-v1-5"
+
             if device == "cuda":
                 try:
+                    # Try with float16 for GPU
                     self.pipe = StableDiffusionPipeline.from_pretrained(
                         model_id,
                         torch_dtype=torch.float16,
@@ -36,22 +35,29 @@ class FreeImageGeneratorTool(Tool):
                         requires_safety_checker=False
                     ).to(device)
             else:
+                # CPU inference with float32
                 self.pipe = StableDiffusionPipeline.from_pretrained(
                     model_id,
                     torch_dtype=torch.float32,
                     safety_checker=None,
                     requires_safety_checker=False
                 ).to(device)
+
+            # Enable memory-efficient attention if available
             if hasattr(self.pipe, 'enable_attention_slicing'):
                 self.pipe.enable_attention_slicing()
+
+            # Only enable CPU offloading if accelerate is available
             try:
                 from accelerate import Accelerator
                 if hasattr(self.pipe, 'enable_model_cpu_offload'):
                     self.pipe.enable_model_cpu_offload()
             except ImportError:
                 print("Accelerator not found, skipping CPU offloading")
+
             self.is_initialized = True
             print(f"Image generator initialized on {device}")
+
         except Exception as e:
             print(f"Error initializing image generator: {e}")
             self.pipe = None
@@ -65,7 +71,7 @@ class FreeImageGeneratorTool(Tool):
             # Generate image with lower resolution for memory efficiency
             image = self.pipe(
                 prompt,
-                num_inference_steps=20,  # Reduced steps for speed
+                num_inference_steps=20,
                 height=512,
                 width=512,
                 guidance_scale=7.5
@@ -77,10 +83,3 @@ class FreeImageGeneratorTool(Tool):
 
             # Save image
             filename = f"generated_{uuid.uuid4().hex[:8]}.png"
-            filepath = os.path.join(output_dir, filename)
-            image.save(filepath)
-
-            return filepath
-
-        except Exception as e:
-            return f"Error generating image: {str(e)}"
