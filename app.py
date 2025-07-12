@@ -56,6 +56,7 @@ def create_model():
         return TransformersModel(
             model=hf_model,
             tokenizer=tokenizer,
+            model_id=model_id,  # Explicitly pass model_id
             max_tokens=2096,
             temperature=0.5
         )
