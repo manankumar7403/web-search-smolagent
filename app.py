@@ -1,17 +1,17 @@
-from smolagents import CodeAgent, tool
+from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel, load_tool, tool
 import datetime
+import requests
 import pytz
 import yaml
-import torch
 from tools.final_answer import FinalAnswerTool
-from tools.free_image_generator import FreeImageGeneratorTool
-from tools.web_search import DuckDuckGoSearchTool
-from tools.visit_webpage import VisitWebpageTool
+
 from Gradio_UI import GradioUI
 
-# Custom tool
+
+# Below is an example of a tool that does nothing. Amaze us with your creativity !
 @tool
-def my_custom_tool(arg1: str, arg2: int) -> str:
+def my_custom_tool(arg1: str, arg2: int) -> str:  # it's import to specify the return type
+    # Keep this format for the description / args / args description but feel free to modify the tool
     """A tool that does nothing yet
     Args:
         arg1: the first argument
@@ -19,7 +19,7 @@ def my_custom_tool(arg1: str, arg2: int) -> str:
     """
     return "What magic will you build ?"
 
-# Timezone tool
+
 @tool
 def get_current_time_in_timezone(timezone: str) -> str:
     """A tool that fetches the current local time in a specified timezone.
@@ -27,94 +27,43 @@ def get_current_time_in_timezone(timezone: str) -> str:
         timezone: A string representing a valid timezone (e.g., 'America/New_York').
     """
     try:
+        # Create timezone object
         tz = pytz.timezone(timezone)
+        # Get current time in that timezone
         local_time = datetime.datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
         return f"The current local time in {timezone} is: {local_time}"
     except Exception as e:
         return f"Error fetching time for timezone '{timezone}': {str(e)}"
 
-# Initialize tools
+
 final_answer = FinalAnswerTool()
-image_generator = FreeImageGeneratorTool()
-web_search = DuckDuckGoSearchTool()
-visit_webpage = VisitWebpageTool()
 
-# Model creation function
-def create_model():
-    try:
-        from smolagents.models import TransformersModel
-        from transformers import AutoTokenizer, AutoModelForCausalLM
+# If the agent does not answer, the model is overloaded, please use another model or the following Hugging Face Endpoint that also contains qwen2.5 coder:
+# model_id='https://pflgm2locj2t89co.us-east-1.aws.endpoints.huggingface.cloud'
 
-        model_id = 'HuggingFaceTB/SmolLM2-1.7B-Instruct'
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        hf_model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            torch_dtype=torch.float32  # Remove device_map to avoid accelerate dependency
-        )
+model = HfApiModel(
+    max_tokens=2096,
+    temperature=0.5,
+    model_id='Qwen/Qwen2.5-Coder-32B-Instruct',  # it is possible that this model may be overloaded
+    custom_role_conversions=None,
+)
 
-        return TransformersModel(
-            model=hf_model,
-            tokenizer=tokenizer,
-            model_id=model_id,  # Explicitly pass model_id for FutureWarning
-            max_tokens=2096,
-            temperature=0.5
-        )
-    except Exception as e:
-        print(f"Error creating model: {e}")
-        return None
+# Import tool from Hub
+image_generation_tool = load_tool("agents-course/text-to-image", trust_remote_code=True)
 
-# Create model
-model = create_model()
+with open("prompts.yaml", 'r') as stream:
+    prompt_templates = yaml.safe_load(stream)
 
-# Load prompts with fallback
-try:
-    with open("prompts.yaml", 'r') as stream:
-        prompt_templates = yaml.safe_load(stream)
-        print("Loaded prompt_templates:", list(prompt_templates.keys()))  # Debug
-        # Verify required keys
-        required_keys = {'system_prompt', 'user_prompt', 'planning_prompt', 'tool_call_prompt', 'error_prompt', 'final_answer', 'managed_agent'}
-        missing_keys = required_keys - set(prompt_templates.keys())
-        if missing_keys:
-            raise ValueError(f"Missing required prompt templates: {missing_keys}")
-except Exception as e:
-    print(f"Error loading prompts.yaml: {e}, using default prompts")
-    prompt_templates = {
-        'system_prompt': "You are a helpful AI assistant that can answer questions and generate images.",
-        'user_prompt': "User question: {input}",
-        'planning_prompt': "Let me think about this step by step.",
-        'tool_call_prompt': "I need to use a tool to help with this request.",
-        'error_prompt': "I encountered an error: {error}. Let me try a different approach.",
-        'final_answer': "Provide the final answer to the user's question: {answer}",
-        'managed_agent': "Delegate the task to a team member: {request}"
-    }
+agent = CodeAgent(
+    model=model,
+    tools=[final_answer],  ## add your tools here (don't remove final answer)
+    max_steps=6,
+    verbosity_level=1,
+    grammar=None,
+    planning_interval=None,
+    name=None,
+    description=None,
+    prompt_templates=prompt_templates
+)
 
-# Create agent with all tools
-if model is None:
-    print("No model available, cannot proceed")
-    exit(1)
-else:
-    try:
-        agent = CodeAgent(
-            model=model,
-            tools=[final_answer, image_generator, web_search, visit_webpage],
-            max_steps=6,
-            verbosity_level=1,
-            grammar=None,
-            planning_interval=None,
-            name=None,
-            description=None,
-            prompt_templates=prompt_templates
-        )
-    except Exception as e:
-        print(f"Error creating agent: {e}")
-        agent = CodeAgent(
-            model=model,
-            tools=[final_answer, image_generator, web_search, visit_webpage],
-            max_steps=6,
-            verbosity_level=1,
-            prompt_templates=prompt_templates
-        )
-
-# Launch Gradio UI with file upload support
-file_upload_folder = "./Uploads"
-GradioUI(agent, file_upload_folder=file_upload_folder).launch()
+GradioUI(agent).launch()
