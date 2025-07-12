@@ -49,14 +49,13 @@ def create_model():
         tokenizer = AutoTokenizer.from_pretrained(model_id)
         hf_model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            torch_dtype=torch.float32,
-            device_map="cpu"  # Force CPU for free-tier Spaces
+            torch_dtype=torch.float32  # Remove device_map to avoid accelerate dependency
         )
 
         return TransformersModel(
             model=hf_model,
             tokenizer=tokenizer,
-            model_id=model_id,  # Explicitly pass model_id
+            model_id=model_id,  # Explicitly pass model_id for FutureWarning
             max_tokens=2096,
             temperature=0.5
         )
