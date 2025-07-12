@@ -156,23 +156,54 @@ def stream_to_gradio(
     final_answer = step_log  # Last log is the run's final_answer
     final_answer = handle_agent_output_types(final_answer)
 
+    # Check if the final answer is an image URL in AgentText
     if isinstance(final_answer, AgentText):
-        yield gr.ChatMessage(
-            role="assistant",
-            content=f"**Final answer:**\n{final_answer.to_string()}\n",
-        )
+        content = final_answer.to_string()
+        # Detect image URLs (http(s) links ending with common image extensions)
+        image_url_pattern = r"(https?://[^\s]+?\.(?:jpg|jpeg|png|gif))"
+        match = re.search(image_url_pattern, content)
+        if match and "image" in task.lower():
+            image_url = match.group(1)
+            # Render the image and include the URL as a clickable link
+            yield gr.ChatMessage(
+                role="assistant",
+                content={
+                    "path": image_url,
+                    "mime_type": "image/jpeg",  # Default to jpeg, as most web images are jpeg or png
+                    "alt_text": f"Image for '{task}'",
+                },
+                metadata={"title": "Image Result"},
+            )
+            yield gr.ChatMessage(
+                role="assistant",
+                content=f"[View image URL]({image_url})",
+                metadata={"title": "Image URL"},
+            )
+        else:
+            # Display text answers without the "Final answer" prefix for a more conversational feel
+            yield gr.ChatMessage(
+                role="assistant",
+                content=content,
+                metadata={"title": "Answer"},
+            )
     elif isinstance(final_answer, AgentImage):
         yield gr.ChatMessage(
             role="assistant",
             content={"path": final_answer.to_string(), "mime_type": "image/png"},
+            metadata={"title": "Image Result"},
         )
     elif isinstance(final_answer, AgentAudio):
         yield gr.ChatMessage(
             role="assistant",
             content={"path": final_answer.to_string(), "mime_type": "audio/wav"},
+            metadata={"title": "Audio Result"},
         )
     else:
-        yield gr.ChatMessage(role="assistant", content=f"**Final answer:** {str(final_answer)}")
+        yield gr.ChatMessage(
+            role="assistant",
+            content=str(final_answer),
+            metadata={"title": "Answer"},
+        )
 
 
 class GradioUI:
