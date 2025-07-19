@@ -1,5 +1,5 @@
 ---
-title: First HF Agent
+title: Web Search Smol Agent
 emoji: ⚡
 colorFrom: pink
 colorTo: yellow
@@ -15,28 +15,38 @@ tags:
 - web-search
 ---
 
-# ⚡ First HF Agent Template
+# Web Search Smol Agent
 
-Welcome to **First HF Agent Template** – a simple and extensible agent setup using [Smol Agents](https://github.com/smol-ai/smol-agent), built to run on Hugging Face Spaces using Gradio.
+Welcome to **Web Search Smol Agent** – a powerful and extensible AI agent with web search capabilities, built using [Smol Agents](https://github.com/smol-ai/smol-agent) and deployed on Hugging Face Spaces with Gradio.
 
-This project serves as a minimal template to get started with building autonomous AI agents that can reason, plan, and execute tasks via tools.
+This project demonstrates how to build autonomous AI agents that can search the web, browse websites, and provide intelligent responses by combining multiple tools and reasoning capabilities.
 
 ![Hugging Face Spaces](https://img.shields.io/badge/HuggingFace-Spaces-blue?logo=huggingface)
 ![Gradio SDK](https://img.shields.io/badge/Gradio-5.35.0-orange?logo=python)
+![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
+
+## Demo
+
+Try it out on [Hugging Face Spaces](https://huggingface.co/spaces/manankumar7403/HF_Agent)
 
 ## Features
 
-- Built using [Smol Agents](https://github.com/smol-ai/smol-agent)
-- Gradio-based interface for agent interaction
+- **Web Search** - Powered by DuckDuckGo search integration
+- **Webpage Browsing** - Visit and extract content from any URL
+- **Smart Agent Logic** - Built on [Smol Agents](https://github.com/smol-ai/smol-agent) framework
+- **Gradio Interface** - Easy-to-use web interface
 - Ready-to-extend tool system
 - Lightweight and beginner-friendly template
 
+
 ## Technologies Used
 
-- Python
-- [Gradio](https://gradio.app) `v5.35.0`
-- Hugging Face Spaces
-- Smol Agent (Tool-based agent framework)
+- **Python 3.8+**
+- **[Gradio](https://gradio.app) v5.35.0** - Web interface framework
+- **[Smol Agents](https://github.com/smol-ai/smol-agent)** - Agent framework
+- **DuckDuckGo Search** - Web search functionality
+- **Qwen2.5-Coder-32B** - Language model for reasoning
+- **Hugging Face Spaces** - Deployment platform
 
 ## Project Structure
 
@@ -55,13 +65,75 @@ first_agent/
 └── .gitattributes
 ```
 
-### Running on Hugging Face Spaces
+## Getting Started
 
-Make sure your `README.md` includes the configuration block at the top (already included above).
+### Fork and Clone
+
+1. **Fork this repository** on GitHub
+2. **Clone your fork**:
+
+```bash
+git clone https://github.com/manankumar7403/web-search-smolagent.git
+cd web-search-smolagent
+```
+
+### Local Installation
+
+3. **Create a virtual environment** (recommended):
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+```
+
+4. **Install dependencies**:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Required packages include:**
+- `smolagents`
+- `gradio==5.35.0`
+- `duckduckgo-search`
+- `requests`
+- `markdownify`
+- `pytz`
+- `pyyaml`
+
+5. **Run locally**:
+
+```bash
+python app.py
+```
+
+### Deploy to Hugging Face Spaces
+
+1. Create a new Space on [Hugging Face Spaces](https://huggingface.co/spaces)
+2. Choose **Gradio** as the SDK
+3. Upload your files or connect your GitHub repository
+4. The Space will automatically deploy using the configuration in the README header
+
+## Usage Examples
+
+Once running, you can ask the agent to:
+
+- **Search the web**: "Search for the latest news about AI"
+- **Browse websites**: "Visit this website and summarize its content"
+- **Get current time**: "What's the current time in Tokyo?"
+- **Combine tasks**: "Search for Python tutorials and visit the top result"
 
 ## Contributing
 
-Contributions are welcome! Please fork the repo and open a pull request.
+Contributions are welcome! Here's how:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
