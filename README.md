@@ -17,7 +17,7 @@ tags:
 
 # Web Search Smol Agent
 
-Welcome to **Web Search Smol Agent** – a powerful and extensible AI agent with web search capabilities, built using [Smol Agents](https://github.com/smol-ai/smol-agent) and deployed on Hugging Face Spaces with Gradio.
+Welcome to **Web Search Smol Agent** – a powerful and extensible AI agent with web search capabilities, built using [Smol Agents](https://github.com/huggingface/smolagents) and deployed on Hugging Face Spaces with Gradio.
 
 This project demonstrates how to build autonomous AI agents that can search the web, browse websites, and provide intelligent responses by combining multiple tools and reasoning capabilities.
 
@@ -33,7 +33,7 @@ Try it out on [Hugging Face Spaces](https://huggingface.co/spaces/manankumar7403
 
 - **Web Search** - Powered by DuckDuckGo search integration
 - **Webpage Browsing** - Visit and extract content from any URL
-- **Smart Agent Logic** - Built on [Smol Agents](https://github.com/smol-ai/smol-agent) framework
+- **Smart Agent Logic** - Built on [Smol Agents](https://github.com/huggingface/smolagents) framework
 - **Gradio Interface** - Easy-to-use web interface
 - Ready-to-extend tool system
 - Lightweight and beginner-friendly template
@@ -43,7 +43,7 @@ Try it out on [Hugging Face Spaces](https://huggingface.co/spaces/manankumar7403
 
 - **Python 3.8+**
 - **[Gradio](https://gradio.app) v5.35.0** - Web interface framework
-- **[Smol Agents](https://github.com/smol-ai/smol-agent)** - Agent framework
+- **[Smol Agents](https://github.com/huggingface/smolagents)** - Agent framework
 - **DuckDuckGo Search** - Web search functionality
 - **Qwen2.5-Coder-32B** - Language model for reasoning
 - **Hugging Face Spaces** - Deployment platform
