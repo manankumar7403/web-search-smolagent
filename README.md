@@ -173,3 +173,11 @@ Contributions are welcome! Here's how:
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
+
+## Support
+
+If you encounter any issues or have questions:
+
+1. Check the [Issues](https://github.com/manankumar7403/web-search-smolagent/issues) page
+2. Create a new issue if your problem isn't already reported
+3. For general questions about Smol Agents, refer to their [documentation](https://github.com/huggingface/smolagents)
