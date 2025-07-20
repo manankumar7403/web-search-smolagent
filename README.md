@@ -124,6 +124,42 @@ Once running, you can ask the agent to:
 - **Get current time**: "What's the current time in Tokyo?"
 - **Combine tasks**: "Search for Python tutorials and visit the top result"
 
+## Customization
+
+### Adding New Tools
+
+You can extend the agent's capabilities by adding new tools in the `tools/` directory. Each tool should inherit from the `Tool` class:
+
+```python
+from smolagents.tools import Tool
+
+class YourCustomTool(Tool):
+    name = "your_tool_name"
+    description = "Description of what your tool does"
+    inputs = {'param': {'type': 'string', 'description': 'Parameter description'}}
+    output_type = "string"
+    
+    def forward(self, param: str) -> str:
+        # Pls add your tool logic here
+        return result
+```
+
+### Modifying Prompts
+
+Edit the `prompts.yaml` file to customize the agent's behavior, system instructions, and response patterns.
+
+### Changing the Model
+
+In `app.py`, you can switch to different models by modifying the `model_id` parameter:
+
+```python
+model = HfApiModel(
+    model_id='your-preferred-model',  # Change this
+    max_tokens=2096,
+    temperature=0.5,
+)
+```
+
 ## Contributing
 
 Contributions are welcome! Here's how:
